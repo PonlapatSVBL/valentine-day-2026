@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Special Valentine ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Mali', cursive;
+            background: #fff1f2;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 50px rgba(251, 113, 133, 0.15);
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        /* Vinyl Animation */
+        .vinyl-wrapper {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 1rem;
+        }
+
+        .vinyl {
+            width: 120px;
+            height: 120px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            border: 4px solid #333;
+            animation: spin 5s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .vinyl.playing {
+            animation-play-state: running;
+        }
+
+        #circularText {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Progress Bar & Icon */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #ffe4e6;
+            border-radius: 10px;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        #progressBar {
+            height: 100%;
+            background: #ff4d6d;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.2s linear;
+        }
+
+        #coupleIcon {
+            position: absolute;
+            top: -16px;
+            left: 0%;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #ff4d6d;
+            background: white;
+            transform: translateX(-50%);
+            transition: left 0.2s linear;
+            object-fit: cover;
+        }
+
+        /* Content Transitions */
+        .content-section {
+            transition: all 1.0s ease;
+            min-height: 200px;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Reasons Animation */
+        #reasonsContainer div {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.75s ease-out;
+            margin-bottom: 8px;
+            padding: 10px;
+            background: #fff1f2;
+            border-left: 4px solid #ff4d6d;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        #reasonsContainer div.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Scratch Area */
+        .scratch-area {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            background: #fff;
+            border-radius: 15px;
+            border: 2px dashed #ffb3c1;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        #prizeText {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4d6d;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        #scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            /* เพิ่มส่วนนี้ */
+            height: 100%;
+            /* เพิ่มส่วนนี้ */
+            z-index: 2;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .photo-card {
+            background: white;
+            padding: 5px 5px 15px 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1.25s ease;
+        }
+
+        .photo-card.show {
+            opacity: 1;
+            transform: scale(1) rotate(var(--r));
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 125px;
+            object-fit: cover;
+        }
+
+        /* No Button Evasion */
+        #noBtn {
+            position: fixed;
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+
+    <audio id="loveSong" loop></audio>
+    <button id="noBtn" class="bg-gray-200 text-gray-500 font-bold py-2 px-5 rounded-lg text-xs">ไม่เอาหรอก 😜</button>
+
+    <!-- Step 1: Invitation -->
+    <div id="step1" class="glass-card">
+        <div class="text-6xl mb-6">🥺</div>
+        <h1 class="text-2xl font-bold text-gray-800">วาเลนไทน์นี้...</h1>
+        <p class="text-pink-600 font-bold text-xl mb-10">ไปเดทกับเค้ามั้ย? ❤️</p>
+        <button onclick="goStep2()"
+            class="w-full bg-pink-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">
+            ตกลงที่สุดเลย! 💖
+        </button>
+        <div id="noBtnPlace" class="h-12 mt-4"></div>
+    </div>
+
+    <!-- Step 2: Main Surprise Card -->
+    <div id="step2" class="glass-card hidden">
+        <!-- Static Top Part -->
+        <div class="vinyl-wrapper">
+            <svg id="circularText" viewBox="0 0 200 200">
+                <path id="circlePath" d="M 100, 100 m -80, 0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0"
+                    fill="transparent" />
+                <text font-size="12" fill="#ff4d6d" font-weight="bold">
+                    <textPath href="#circlePath" id="songNameDisplay"></textPath>
+                </text>
+            </svg>
+            <div id="vinylDisk" class="vinyl">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-8 h-8 bg-pink-500 rounded-full border-4 border-zinc-800"></div>
+                </div>
+            </div>
+        </div>
+
+        <h2 id="sTitle" class="text-xl font-bold text-gray-800"></h2>
+
+        <div class="progress-container">
+            <div id="progressBar"></div>
+            <img id="coupleIcon" src="" alt="couple">
+        </div>
+
+        <!-- Dynamic Content Part -->
+        <div id="dynamicContainer">
+
+            <!-- Section A: Reasons -->
+            <div id="reasonsSection" class="content-section">
+                <p class="text-xs text-pink-400 mb-3">สิ่งที่อยากบอกเธอ...</p>
+                <div id="reasonsContainer"></div>
+            </div>
+
+            <!-- Section B: Scratch Card -->
+            <div id="scratchSection" class="content-section hidden opacity-0">
+                <p class="text-[10px] text-gray-400 font-bold mb-2">👇 ใช้นิ้วขูดเบาๆ เพื่อเปิดรางวัล 👇</p>
+                <div class="scratch-area">
+                    <div id="prizeText"></div>
+                    <canvas id="scratch-canvas"></canvas>
+                </div>
+                <button id="btnGallery" onclick="showGallery()"
+                    class="hidden w-full bg-pink-500 text-white py-3 rounded-full font-bold shadow-lg mt-4 animate-bounce">
+                    ดู Our Memories ✨
+                </button>
+            </div>
+
+            <!-- Section C: Gallery -->
+            <div id="gallerySection" class="content-section hidden opacity-0">
+                <div class="gallery-grid" id="galleryContainer"></div>
+                <p id="sFinal" class="text-pink-500 font-bold mt-6 text-sm"></p>
+                <button onclick="location.reload()" class="mt-4 text-pink-300 text-[10px] underline">ดูอีกรอบ
+                    ❤️</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('loveSong');
+        const btnNo = document.getElementById('noBtn');
+
+        // Initial No Button Position
+        window.onload = () => {
+            const rect = document.getElementById('noBtnPlace').getBoundingClientRect();
+            btnNo.style.left = rect.left + 'px';
+            btnNo.style.top = rect.top + 'px';
+        };
+
+        // No button move logic
+        btnNo.onmouseenter = btnNo.ontouchstart = (e) => {
+            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight);
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = x + 'px';
+            btnNo.style.top = y + 'px';
+        };
+
+        async function goStep2() {
+            const res = await fetch('/api/surprise-content');
+            const data = await res.json();
+
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            btnNo.style.display = 'none';
+
+            // Audio Setup
+            audio.src = data.audioUrl;
+            audio.load();
+            audio.play().then(() => {
+                document.getElementById('vinylDisk').classList.add('playing');
+            }).catch(() => console.log("User must interact first"));
+
+            audio.ontimeupdate = () => {
+                if (audio.duration) {
+                    const pct = (audio.currentTime / audio.duration) * 100;
+                    document.getElementById('progressBar').style.width = pct + "%";
+                    document.getElementById('coupleIcon').style.left = pct + "%";
+                }
+            };
+
+            // Initial Data Load
+            document.getElementById('sTitle').innerText = data.title;
+            document.getElementById('sFinal').innerText = data.finalNote;
+            document.getElementById('prizeText').innerText = data.scratchPrize;
+            document.getElementById('coupleIcon').src = data.coupleIcon;
+            document.getElementById('songNameDisplay').textContent = (data.songTitle + " • ").repeat(5);
+
+            // 1. Show Reasons
+            const container = document.getElementById('reasonsContainer');
+            data.reasons.forEach((text, i) => {
+                setTimeout(() => {
+                    const d = document.createElement('div');
+                    d.innerText = text;
+                    container.appendChild(d);
+                    setTimeout(() => d.classList.add('show'), 50);
+                }, i * 1000);
+            });
+
+            // 2. Wait 10s after all reasons and swap to Scratch Card
+            const totalReasonTime = (data.reasons.length * 1000) * 2;
+            setTimeout(() => {
+                swapContent('reasonsSection', 'scratchSection', () => {
+                    initScratchCard();
+                });
+            }, totalReasonTime);
+
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
+        }
+
+        function swapContent(oldId, newId, callback) {
+            const oldEl = document.getElementById(oldId);
+            const newEl = document.getElementById(newId);
+            oldEl.classList.add('fade-out');
+            setTimeout(() => {
+                oldEl.classList.add('hidden');
+                newEl.classList.remove('hidden');
+                setTimeout(() => {
+                    newEl.classList.remove('opacity-0');
+                    if (callback) callback();
+                }, 50);
+            }, 500);
+        }
+
+        function initScratchCard() {
+            const canvas = document.getElementById('scratch-canvas');
+            const container = canvas.parentElement; // ดึงกล่อง .scratch-area มา
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+            // ตั้งค่าความละเอียดของ Canvas ให้เท่ากับขนาดที่เห็นบนจอจริง
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            // เคลียร์และวาดพื้นหลังสีเทาให้เต็ม
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = '#C0C0C0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // ใส่ลวดลายจุดๆ (Texture) ให้ดูเหมือนบัตรขูด
+            ctx.fillStyle = '#A9A9A9';
+            for (let i = 0; i < 400; i++) {
+                ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
+            }
+
+            // ใส่ข้อความตรงกลาง
+            ctx.fillStyle = '#666';
+            ctx.font = 'bold 16px Mali'; // ปรับขนาดฟอนต์ให้ชัดขึ้น
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('ขูดเบาๆ ตรงนี้รอนะ ❤️', canvas.width / 2, canvas.height / 2);
+
+            let isDrawing = false;
+            let points = 0;
+
+            const scratch = (e) => {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                // คำนวณตำแหน่งที่ขูดให้แม่นยำ
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+                points++;
+                if (points > 80) { // ปรับให้ปุ่มขึ้นเร็วขึ้นนิดนึง
+                    document.getElementById('btnGallery').classList.remove('hidden');
+                }
+            };
+
+            // Event Listeners (เหมือนเดิมแต่เพิ่ม preventDefault ให้สมบูรณ์)
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            window.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mousemove', scratch);
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); e.preventDefault(); }, { passive: false });
+            canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); }, { passive: false });
+        }
+
+        async function showGallery() {
+            swapContent('scratchSection', 'gallerySection', async () => {
+                const res = await fetch('/api/surprise-content');
+                const data = await res.json();
+                const container = document.getElementById('galleryContainer');
+
+                data.gallery.forEach((url, i) => {
+                    setTimeout(() => {
+                        const card = document.createElement('div');
+                        card.className = "photo-card";
+                        card.style.setProperty('--r', (Math.random() * 10 - 5) + 'deg');
+                        card.innerHTML = `<img src="${url}" class="rounded">`;
+                        container.appendChild(card);
+                        setTimeout(() => card.classList.add('show'), 50);
+                    }, i * 750);
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
