@@ -1,9 +1,9 @@
 const express = require('express');
-const serverless = require('serverless-http'); // เพิ่มตัวนี้
+const serverless = require('serverless-http');
 const app = express();
-const router = express.Router();
 
-router.get('/surprise-content', (req, res) => {
+// ไม่ต้องใช้ router ซับซ้อน เอาแบบตรงๆ เลย
+app.get('/api/surprise-content', (req, res) => {
     res.json({
         title: "Happy Valentine's Day ❤️",
         songTitle: "Will You Be My Valentine",
@@ -28,7 +28,5 @@ router.get('/surprise-content', (req, res) => {
     });
 });
 
-app.use('/.netlify/functions/server', router);
-
-module.exports = app;
+// บรรทัดนี้สำคัญมากสำหรับการทำ Redirect ใน Netlify
 module.exports.handler = serverless(app);

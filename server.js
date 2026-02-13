@@ -1,9 +1,10 @@
 const express = require('express');
-const serverless = require('serverless-http'); // เพิ่มตัวนี้
 const app = express();
-const router = express.Router();
+const PORT = 3000;
 
-router.get('/surprise-content', (req, res) => {
+app.use(express.static('public'));
+
+app.get('/api/surprise-content', (req, res) => {
     res.json({
         title: "Happy Valentine's Day ❤️",
         songTitle: "Will You Be My Valentine",
@@ -28,7 +29,4 @@ router.get('/surprise-content', (req, res) => {
     });
 });
 
-app.use('/.netlify/functions/server', router);
-
-module.exports = app;
-module.exports.handler = serverless(app);
+app.listen(PORT, () => console.log(`🚀 Server on http://localhost:${PORT}`));
